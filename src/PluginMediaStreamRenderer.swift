@@ -13,7 +13,7 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 	var cbData: (_ uuid: String, _ data: NSData?) -> Void
 
 	var webView: UIView
-	var elementView: UIView?
+	var elementView: UIView
 	var pluginMediaStream: PluginMediaStream?
 	
 	var videoView: RTCEAGLVideoView
@@ -51,6 +51,9 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 		self.videoView.isUserInteractionEnabled = false
 
 		if (self.useCanvas) {
+			self.elementView = UIView()
+			self.elementView.isUserInteractionEnabled = false
+			self.elementView.isHidden = true
 			return
 		}
 

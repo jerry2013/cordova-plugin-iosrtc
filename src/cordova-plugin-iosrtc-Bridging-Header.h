@@ -24,6 +24,10 @@
 #import <WebRTC/RTCVideoSource.h>
 #import <WebRTC/RTCVideoTrack.h>
 
+#import "PSWebSocket.h"
+#import "PSWebSocketServer.h"
+#include <ifaddrs.h>
+
 // Expose RTCEAGLVideoViewDelegate to Swift
 RTC_OBJC_EXPORT
 @protocol RTCEAGLVideoViewDelegate <RTCVideoViewDelegate>
