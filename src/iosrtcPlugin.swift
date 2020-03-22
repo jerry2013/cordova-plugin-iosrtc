@@ -20,6 +20,8 @@ class iosrtcPlugin : CDVPlugin {
 	var queue: DispatchQueue!
 	// Auto selecting output speaker
 	var audioOutputController: PluginRTCAudioController!
+	// WebSocket frame server
+	var server: PluginWebSocketServer?
 
 
 	// This is just called if <param name="onload" value="true" /> in plugin.xml.
@@ -50,6 +52,10 @@ class iosrtcPlugin : CDVPlugin {
 
 		// Create a PluginRTCAudioController instance.
 		self.audioOutputController = PluginRTCAudioController()
+
+		// Create video frame server
+		self.server = PluginWebSocketServer()
+		self.server?.start(lport: 12345, tcpNoDelay: true)
 	}
 
 	private func initPeerConnectionFactory() {
@@ -80,6 +86,7 @@ class iosrtcPlugin : CDVPlugin {
 
 	@objc(onAppTerminate) override func onAppTerminate() {
 		NSLog("iosrtcPlugin#onAppTerminate() | doing nothing")
+		self.server?.stop()
 	}
 
 	@objc(new_RTCPeerConnection:) func new_RTCPeerConnection(_ command: CDVInvokedUrlCommand) {
@@ -863,9 +870,16 @@ class iosrtcPlugin : CDVPlugin {
 	@objc(new_MediaStreamRenderer:) func new_MediaStreamRenderer(_ command: CDVInvokedUrlCommand) {
 		NSLog("iosrtcPlugin#new_MediaStreamRenderer()")
 
+		let wsuuid = self.server?.getUUID() ?? ""
+		let wsport = self.server?.realport ?? 0
+
 		let id = command.argument(at: 0) as! Int
+		let canvas = command.argument(at: 1) as! Bool
 
 		let pluginMediaStreamRenderer = PluginMediaStreamRenderer(
+			uuid: wsuuid,
+			port: wsport,
+			useCanvas: canvas,
 			webView: self.webView!,
 			eventListener: { (data: NSDictionary) -> Void in
 				let result = CDVPluginResult(
@@ -876,6 +890,9 @@ class iosrtcPlugin : CDVPlugin {
 				// Allow more callbacks.
 				result?.setKeepCallbackAs(true);
 				self.emit(command.callbackId, result: result!)
+			},
+			cbData: { (uuid: String, data: NSData?) -> Void in
+				self.server?.send(uuid: uuid, msg: data)
 			}
 		)
 
@@ -968,6 +985,8 @@ class iosrtcPlugin : CDVPlugin {
 		}
 
 		pluginMediaStreamRenderer!.close()
+
+		self.server?.close(uuid: pluginMediaStreamRenderer!.uuid, code: -1, reason: "active close")
 
 		// Remove from the dictionary.
 		self.pluginMediaStreamRenderers[id] = nil

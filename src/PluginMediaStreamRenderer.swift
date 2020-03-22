@@ -6,9 +6,14 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 	var id: String
 	var eventListener: (_ data: NSDictionary) -> Void
 	var closed: Bool
-	
+
+	var uuid: String
+	var port: Int
+	var useCanvas: Bool
+	var cbData: (_ uuid: String, _ data: NSData?) -> Void
+
 	var webView: UIView
-	var elementView: UIView
+	var elementView: UIView?
 	var pluginMediaStream: PluginMediaStream?
 	
 	var videoView: RTCEAGLVideoView
@@ -16,11 +21,21 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 	var rtcVideoTrack: RTCVideoTrack?
 
 	init(
+		uuid: String,
+		port: Int,
+		useCanvas: Bool,
 		webView: UIView,
-		eventListener: @escaping (_ data: NSDictionary) -> Void
+		eventListener: @escaping (_ data: NSDictionary) -> Void,
+		cbData: @escaping (_ uuid:String, _ data: NSData?) -> Void
 	) {
 		NSLog("PluginMediaStreamRenderer#init()")
-		
+
+		self.uuid = uuid
+		self.port = port
+		self.useCanvas = useCanvas
+		self.closed = false
+		self.cbData = cbData
+
 		// Open Renderer
 		self.id = UUID().uuidString;
 		self.closed = false
@@ -29,14 +44,18 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 		self.webView = webView
 		self.eventListener = eventListener
 		
-		// The video element view.
-		self.elementView = UIView()
-		
 		// The effective video view in which the the video stream is shown.
 		// It's placed over the elementView.
 		self.videoView = RTCEAGLVideoView()
+		self.videoView.donotRender = self.useCanvas
 		self.videoView.isUserInteractionEnabled = false
 
+		if (self.useCanvas) {
+			return
+		}
+
+		// The video element view.
+		self.elementView = UIView()
 		self.elementView.isUserInteractionEnabled = false
 		self.elementView.isHidden = true
 		self.elementView.backgroundColor = UIColor.black
@@ -74,6 +93,14 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 		NSLog("PluginMediaStreamRenderer#run()")
 
 		self.videoView.delegate = self
+
+		self.eventListener([
+			"type": "videowebsocket",
+			"ws" : [
+				"uuid": self.uuid,
+				"port": self.port
+			]
+		])
 	}
 
 	func render(_ pluginMediaStream: PluginMediaStream) {
@@ -160,7 +187,10 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 	}
 
 	func refresh(_ data: NSDictionary) {
-		
+		if (self.useCanvas) {
+			return
+		}
+
 		let elementLeft = data.object(forKey: "elementLeft") as? Double ?? 0
 		let elementTop = data.object(forKey: "elementTop") as? Double ?? 0
 		let elementWidth = data.object(forKey: "elementWidth") as? Double ?? 0
@@ -297,8 +327,10 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 	
 	func videoView(_ videoView: RTCVideoRenderer, didChange frame: RTCVideoFrame?) {
 		
-		// TODO save from frame buffer instead of renderer
-		/*
+		if (frame == nil || !self.useCanvas || self.closed) {
+			return
+		}
+
 		let i420: RTCI420BufferProtocol = frame!.buffer.toI420()
 		let YPtr: UnsafePointer<UInt8> = i420.dataY
 		let UPtr: UnsafePointer<UInt8> = i420.dataU
@@ -311,14 +343,14 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 		var height: Int16 = Int16(frame!.height)
 		var rotation: Int16 = Int16(frame!.rotation.rawValue)
 		var timestamp: Int32 = Int32(frame!.timeStamp)
-		
+
 		// head + body
 		// head: type(2B)+len(4B)+width(2B)+height(2B)+rotation(2B)+timestamp(4B)
 		// body: data(len)
 		let headSize:Int32 = 16
 		let dataSize:Int32 = headSize + frameSize
 		let pduData: NSMutableData? = NSMutableData(length: Int(dataSize))
-		
+
 		let headPtr = pduData!.mutableBytes
 		var pduType:UInt16 = 0x2401
 		memcpy(headPtr, &pduType, 2)
@@ -332,6 +364,7 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 		memcpy(bodyPtr, YPtr, YSize)
 		memcpy(bodyPtr + YSize, UPtr, USize);
 		memcpy(bodyPtr + YSize + USize, VPtr, VSize);
-		*/
+
+		self.cbData(self.uuid, pduData)
 	}
 }
