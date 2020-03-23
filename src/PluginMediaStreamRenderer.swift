@@ -47,7 +47,6 @@ class PluginMediaStreamRenderer : NSObject, RTCEAGLVideoViewDelegate {
 		// The effective video view in which the the video stream is shown.
 		// It's placed over the elementView.
 		self.videoView = RTCEAGLVideoView()
-		self.videoView.donotRender = self.useCanvas
 		self.videoView.isUserInteractionEnabled = false
 
 		if (self.useCanvas) {

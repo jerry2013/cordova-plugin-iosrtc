@@ -179,7 +179,7 @@ function onEvent(data) {
 	var type = data.type,
 		event;
 
-	debug('onEvent() | [type:%s, data:%o]', type, data);
+	// debug('onEvent() | [type:%s, data:%o]', type, data);
 
 	switch (type) {
 		case 'new':

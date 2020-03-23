@@ -216,6 +216,10 @@ function observeVideo(video) {
 		} else if (video.srcObject && video._iosrtcMediaStreamRendererId) {
 			// The video element has received a new srcObject.
 			var stream = video.srcObject;
+			if (stream.canvas) {
+				// this is the canvas stream
+				return;
+			}
 			if (stream && typeof stream.getBlobId === 'function') {
 				// Release previous renderer
 				releaseMediaStreamRenderer(video);
@@ -279,6 +283,12 @@ function provideMediaStreamRenderer(video, mediaStreamBlobId) {
 
 		mediaStreamRenderers[mediaStreamRenderer.id] = mediaStreamRenderer;
 		video._iosrtcMediaStreamRendererId = mediaStreamRenderer.id;
+	}
+
+	if (mediaStreamRenderer.useCanvas) {
+		var stream = mediaStreamRenderer.canvasElement.captureStream(30);
+		stream.canvas = mediaStreamRenderer.canvasElement;
+		video.srcObject = stream;
 	}
 
 	// Close the MediaStreamRenderer of this video if it emits "close" event.

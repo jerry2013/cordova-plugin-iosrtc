@@ -1,5 +1,5 @@
 /*
- * cordova-plugin-iosrtc v6.0.9
+ * cordova-plugin-iosrtc v7.0.0
  * Cordova iOS plugin exposing the full WebRTC W3C JavaScript APIs
  * Copyright 2015-2017 eFace2Face, Inc. (https://eface2face.com)
  * Copyright 2015-2019 BasqueVoIPMafia (https://github.com/BasqueVoIPMafia)
@@ -627,8 +627,9 @@ function MediaStreamRenderer(element) {
 	this.url = undefined;
 	this.websocket = undefined;
 	this.canvasCtx = undefined;
-	var canvasId = element.id + '__canvas';
-	this.canvasElement = document.getElementById(canvasId);
+	// var canvasId = element.id + '__canvas';
+	// this.canvasElement = document.getElementById(canvasId);
+	this.canvasElement = document.createElement('canvas');
 	if (this.canvasElement) {
 		this.initCanvas(this.canvasElement);
 		this.useCanvas = true;
@@ -735,6 +736,9 @@ MediaStreamRenderer.prototype.save = function (callback) {
 };
 
 MediaStreamRenderer.prototype.refresh = function () {
+	if (this.useCanvas) {
+		return;
+	}
 	debug('refresh()');
 
 	var elementPositionAndSize = getElementPositionAndSize.call(this),
@@ -1213,15 +1217,15 @@ function CanvasI420Context(canvas, options) {
 		fillBlack: function() {
 			fillBlack(this.gl);
 		}
-	}
+	};
 
 	debug('[canvas] create context success');
 	return renderContext;
 }
 
-MediaStreamRenderer.prototype.initCanvas = function(name) {
+MediaStreamRenderer.prototype.initCanvas = function(canvas) {
 	if (!this.canvasCtx) {
-		this.canvasCtx = new CanvasI420Context(name);
+		this.canvasCtx = new CanvasI420Context(canvas);
 		debug('[canvas] init canvas context=' + this.canvasCtx);
 	}
 	if (this.canvasCtx) {
@@ -1244,7 +1248,7 @@ MediaStreamRenderer.prototype.drawFrame = function(frame, width, height) {
 };
 
 MediaStreamRenderer.prototype.stop = function () {
-    this.stopped = true;
+	this.stopped = true;
 };
 
 
@@ -1374,6 +1378,14 @@ MediaStreamTrack.prototype.stop = function () {
 
 
 // TODO: API methods and events.
+MediaStreamTrack.prototype.getSettings = function () {
+	return {};
+};
+
+
+MediaStreamTrack.prototype.getConstraints = function () {
+	return {};
+};
 
 
 /**
@@ -3706,6 +3718,10 @@ function observeVideo(video) {
 		} else if (video.srcObject && video._iosrtcMediaStreamRendererId) {
 			// The video element has received a new srcObject.
 			var stream = video.srcObject;
+			if (stream.canvas) {
+				// this is the canvas stream
+				return;
+			}
 			if (stream && typeof stream.getBlobId === 'function') {
 				// Release previous renderer
 				releaseMediaStreamRenderer(video);
@@ -3769,6 +3785,12 @@ function provideMediaStreamRenderer(video, mediaStreamBlobId) {
 
 		mediaStreamRenderers[mediaStreamRenderer.id] = mediaStreamRenderer;
 		video._iosrtcMediaStreamRendererId = mediaStreamRenderer.id;
+	}
+
+	if (mediaStreamRenderer.useCanvas) {
+		var stream = mediaStreamRenderer.canvasElement.captureStream(30);
+		stream.canvas = mediaStreamRenderer.canvasElement;
+		video.srcObject = stream;
 	}
 
 	// Close the MediaStreamRenderer of this video if it emits "close" event.

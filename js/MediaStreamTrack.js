@@ -79,6 +79,14 @@ MediaStreamTrack.prototype.stop = function () {
 
 
 // TODO: API methods and events.
+MediaStreamTrack.prototype.getSettings = function () {
+	return {};
+};
+
+
+MediaStreamTrack.prototype.getConstraints = function () {
+	return {};
+};
 
 
 /**
