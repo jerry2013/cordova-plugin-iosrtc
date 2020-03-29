@@ -893,7 +893,7 @@ MediaStreamRenderer.prototype.refresh = function () {
 
 	if (this.element.readyState === this.element.HAVE_ENOUGH_DATA) {
 		this.element.dispatchEvent(new Event('canplay'));
-		self.element.dispatchEvent(new Event('canplaythrough'));
+		this.element.dispatchEvent(new Event('canplaythrough'));
 	}
 
 	function hash(str) {
