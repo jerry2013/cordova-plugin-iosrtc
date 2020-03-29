@@ -2,7 +2,7 @@
  * Expose the RTCRtpTransceiver class.
  */
 module.exports = RTCRtpTransceiver;
-window.RTCRtpTransceiver = RTCRtpTransceiver;
+
 
 function RTCRtpTransceiver(data) {
 	data = data || {};

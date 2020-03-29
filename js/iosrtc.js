@@ -28,6 +28,9 @@ var
 	RTCIceCandidate        = require('./RTCIceCandidate'),
 	MediaStream            = require('./MediaStream'),
 	MediaStreamTrack       = require('./MediaStreamTrack'),
+	RTCRtpSender           = require('./RTCRtpSender'),
+	RTCRtpTransceiver      = require('./RTCRtpTransceiver'),
+	RTCRtpReceiver         = require('./RTCRtpReceiver'),
 	videoElementsHandler   = require('./videoElementsHandler');
 
 
@@ -187,6 +190,21 @@ function registerGlobals(doNotRestoreCallbacksSupport) {
 		restoreCallbacksSupport();
 	}
 
+	window._OriginalRTC = {
+		mediaDevices: {
+			getUserMedia: getUserMedia,
+			enumerateDevices:enumerateDevices,
+		},
+		RTCPeerConnection: window.RTCPeerConnection,
+		RTCSessionDescription: window.RTCSessionDescription,
+		RTCIceCandidate: window.RTCIceCandidate,
+		MediaStream: window.MediaStream,
+		MediaStreamTrack: window.MediaStreamTrack,
+		RTCRtpSender: window.RTCRtpSender,
+		RTCRtpTransceiver: window.RTCRtpTransceiver,
+		RTCRtpReceiver: window.RTCRtpReceiver,
+	};
+
 	navigator.getUserMedia                  = getUserMedia;
 	navigator.webkitGetUserMedia            = getUserMedia;
 	navigator.mediaDevices.getUserMedia     = getUserMedia;
@@ -199,6 +217,9 @@ function registerGlobals(doNotRestoreCallbacksSupport) {
 	window.MediaStream                      = MediaStream;
 	window.webkitMediaStream                = MediaStream;
 	window.MediaStreamTrack                 = MediaStreamTrack;
+	window.RTCRtpSender                     = RTCRtpSender;
+	window.RTCRtpTransceiver                = RTCRtpTransceiver;
+	window.RTCRtpReceiver                   = RTCRtpReceiver;
 }
 
 function dump() {

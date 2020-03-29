@@ -2452,7 +2452,7 @@ function onEvent(data) {
  * Expose the RTCRtpReceiver class.
  */
 module.exports = RTCRtpReceiver;
-window.RTCRtpReceiver = RTCRtpReceiver;
+
 
 function RTCRtpReceiver(data) {
 	data = data || {};
@@ -2465,7 +2465,7 @@ function RTCRtpReceiver(data) {
  * Expose the RTCRtpSender class.
  */
 module.exports = RTCRtpSender;
-window.RTCRtpSender = RTCRtpSender;
+
 
 function RTCRtpSender(data) {
 	data = data || {};
@@ -2477,7 +2477,7 @@ function RTCRtpSender(data) {
  * Expose the RTCRtpTransceiver class.
  */
 module.exports = RTCRtpTransceiver;
-window.RTCRtpTransceiver = RTCRtpTransceiver;
+
 
 function RTCRtpTransceiver(data) {
 	data = data || {};
@@ -3085,6 +3085,9 @@ var
 	RTCIceCandidate        = _dereq_('./RTCIceCandidate'),
 	MediaStream            = _dereq_('./MediaStream'),
 	MediaStreamTrack       = _dereq_('./MediaStreamTrack'),
+	RTCRtpSender           = _dereq_('./RTCRtpSender'),
+	RTCRtpTransceiver      = _dereq_('./RTCRtpTransceiver'),
+	RTCRtpReceiver         = _dereq_('./RTCRtpReceiver'),
 	videoElementsHandler   = _dereq_('./videoElementsHandler');
 
 
@@ -3244,6 +3247,21 @@ function registerGlobals(doNotRestoreCallbacksSupport) {
 		restoreCallbacksSupport();
 	}
 
+	window._OriginalRTC = {
+		mediaDevices: {
+			getUserMedia: getUserMedia,
+			enumerateDevices:enumerateDevices,
+		},
+		RTCPeerConnection: window.RTCPeerConnection,
+		RTCSessionDescription: window.RTCSessionDescription,
+		RTCIceCandidate: window.RTCIceCandidate,
+		MediaStream: window.MediaStream,
+		MediaStreamTrack: window.MediaStreamTrack,
+		RTCRtpSender: window.RTCRtpSender,
+		RTCRtpTransceiver: window.RTCRtpTransceiver,
+		RTCRtpReceiver: window.RTCRtpReceiver,
+	};
+
 	navigator.getUserMedia                  = getUserMedia;
 	navigator.webkitGetUserMedia            = getUserMedia;
 	navigator.mediaDevices.getUserMedia     = getUserMedia;
@@ -3256,6 +3274,9 @@ function registerGlobals(doNotRestoreCallbacksSupport) {
 	window.MediaStream                      = MediaStream;
 	window.webkitMediaStream                = MediaStream;
 	window.MediaStreamTrack                 = MediaStreamTrack;
+	window.RTCRtpSender                     = RTCRtpSender;
+	window.RTCRtpTransceiver                = RTCRtpTransceiver;
+	window.RTCRtpReceiver                   = RTCRtpReceiver;
 }
 
 function dump() {
@@ -3263,7 +3284,7 @@ function dump() {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./MediaStream":4,"./MediaStreamTrack":6,"./RTCIceCandidate":9,"./RTCPeerConnection":10,"./RTCSessionDescription":14,"./enumerateDevices":17,"./getUserMedia":18,"./videoElementsHandler":20,"cordova/exec":undefined,"debug":21,"domready":23}],20:[function(_dereq_,module,exports){
+},{"./MediaStream":4,"./MediaStreamTrack":6,"./RTCIceCandidate":9,"./RTCPeerConnection":10,"./RTCRtpReceiver":11,"./RTCRtpSender":12,"./RTCRtpTransceiver":13,"./RTCSessionDescription":14,"./enumerateDevices":17,"./getUserMedia":18,"./videoElementsHandler":20,"cordova/exec":undefined,"debug":21,"domready":23}],20:[function(_dereq_,module,exports){
 /**
  * Expose a function that must be called when the library is loaded.
  * And also a helper function.
