@@ -303,6 +303,11 @@ MediaStreamRenderer.prototype.refresh = function () {
 
 	nativeRefresh.call(this);
 
+	if (this.element.readyState === this.element.HAVE_ENOUGH_DATA) {
+		this.element.dispatchEvent(new Event('canplay'));
+		self.element.dispatchEvent(new Event('canplaythrough'));
+	}
+
 	function hash(str) {
 		var hash = 5381,
 		i = str.length;
