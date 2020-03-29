@@ -219,7 +219,7 @@ function MediaStream(arg, id) {
 		arg.forEach(function (track) {
 			stream.addTrack(track);
 		});
-		if (arg.every(function (track) { return track.connected; })) {
+		if (arg.length && arg.every(function (track) { return track.connected; })) {
 			stream.connected = true;
 		}
 	} else if (typeof arg !== 'undefined') {
