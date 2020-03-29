@@ -2452,7 +2452,7 @@ function onEvent(data) {
  * Expose the RTCRtpReceiver class.
  */
 module.exports = RTCRtpReceiver;
-
+window.RTCRtpReceiver = RTCRtpReceiver;
 
 function RTCRtpReceiver(data) {
 	data = data || {};
@@ -2465,7 +2465,7 @@ function RTCRtpReceiver(data) {
  * Expose the RTCRtpSender class.
  */
 module.exports = RTCRtpSender;
-
+window.RTCRtpSender = RTCRtpSender;
 
 function RTCRtpSender(data) {
 	data = data || {};
@@ -2477,7 +2477,7 @@ function RTCRtpSender(data) {
  * Expose the RTCRtpTransceiver class.
  */
 module.exports = RTCRtpTransceiver;
-
+window.RTCRtpTransceiver = RTCRtpTransceiver;
 
 function RTCRtpTransceiver(data) {
 	data = data || {};
