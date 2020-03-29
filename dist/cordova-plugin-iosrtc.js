@@ -219,6 +219,9 @@ function MediaStream(arg, id) {
 		arg.forEach(function (track) {
 			stream.addTrack(track);
 		});
+		if (arg.every(function (track) { return track.connected; })) {
+			stream.connected = true;
+		}
 	} else if (typeof arg !== 'undefined') {
 		throw new TypeError("Failed to construct 'MediaStream': No matching constructor signature.");
 	}
@@ -458,6 +461,9 @@ MediaStream.prototype.emitConnected = function () {
 		return;
 	}
 	this.connected = true;
+	this.getTracks().forEach(function (track) {
+		track.connected = true;
+	});
 
 	setTimeout(function (self) {
 		var event = new Event('connected');
@@ -3251,21 +3257,6 @@ function registerGlobals(doNotRestoreCallbacksSupport) {
 	if (!doNotRestoreCallbacksSupport) {
 		restoreCallbacksSupport();
 	}
-
-	window._OriginalRTC = {
-		mediaDevices: {
-			getUserMedia: getUserMedia,
-			enumerateDevices:enumerateDevices,
-		},
-		RTCPeerConnection: window.RTCPeerConnection,
-		RTCSessionDescription: window.RTCSessionDescription,
-		RTCIceCandidate: window.RTCIceCandidate,
-		MediaStream: window.MediaStream,
-		MediaStreamTrack: window.MediaStreamTrack,
-		RTCRtpSender: window.RTCRtpSender,
-		RTCRtpTransceiver: window.RTCRtpTransceiver,
-		RTCRtpReceiver: window.RTCRtpReceiver,
-	};
 
 	navigator.getUserMedia                  = getUserMedia;
 	navigator.webkitGetUserMedia            = getUserMedia;

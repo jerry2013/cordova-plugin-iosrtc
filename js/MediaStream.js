@@ -93,6 +93,9 @@ function MediaStream(arg, id) {
 		arg.forEach(function (track) {
 			stream.addTrack(track);
 		});
+		if (arg.every(function (track) { return track.connected; })) {
+			stream.connected = true;
+		}
 	} else if (typeof arg !== 'undefined') {
 		throw new TypeError("Failed to construct 'MediaStream': No matching constructor signature.");
 	}
@@ -332,6 +335,9 @@ MediaStream.prototype.emitConnected = function () {
 		return;
 	}
 	this.connected = true;
+	this.getTracks().forEach(function (track) {
+		track.connected = true;
+	});
 
 	setTimeout(function (self) {
 		var event = new Event('connected');

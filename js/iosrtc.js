@@ -190,21 +190,6 @@ function registerGlobals(doNotRestoreCallbacksSupport) {
 		restoreCallbacksSupport();
 	}
 
-	window._OriginalRTC = {
-		mediaDevices: {
-			getUserMedia: getUserMedia,
-			enumerateDevices:enumerateDevices,
-		},
-		RTCPeerConnection: window.RTCPeerConnection,
-		RTCSessionDescription: window.RTCSessionDescription,
-		RTCIceCandidate: window.RTCIceCandidate,
-		MediaStream: window.MediaStream,
-		MediaStreamTrack: window.MediaStreamTrack,
-		RTCRtpSender: window.RTCRtpSender,
-		RTCRtpTransceiver: window.RTCRtpTransceiver,
-		RTCRtpReceiver: window.RTCRtpReceiver,
-	};
-
 	navigator.getUserMedia                  = getUserMedia;
 	navigator.webkitGetUserMedia            = getUserMedia;
 	navigator.mediaDevices.getUserMedia     = getUserMedia;
